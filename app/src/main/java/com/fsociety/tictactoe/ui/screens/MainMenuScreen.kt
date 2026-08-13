@@ -1,16 +1,15 @@
 package com.fsociety.tictactoe.ui.screens
 
-import android.R
-import android.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,7 +36,7 @@ fun MainMenuScreen(
             text = "TIC",
             fontSize = 52.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = Color.White
+            color = Color.Black
         )
 
         Text(
@@ -57,15 +56,50 @@ fun MainMenuScreen(
 
         Spacer(Modifier.height(45.dp))
 
-        
+        Button(
+            onClick = onPlayerVsPlayerClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(65.dp),
+            shape = RoundedCornerShape(18.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF673AB7))
+        ) {
+            Text(
+                text = "\uD83D\uDC64  لاعب ضد لاعب  \uD83D\uDC64",
+                fontSize = 19.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
 
+        Spacer(Modifier.height(20.dp))
+
+        Button(
+            onClick = onPlayerVsPlayerClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(65.dp),
+            shape = RoundedCornerShape(18.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF009688))
+        ){
+            Text(
+                text = "\uD83D\uDC64  لاعب ضد الهاتف  \uD83E\uDD16",
+                fontSize = 19.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(Modifier.height(45.dp))
+
+        Text(
+            text = "X . O",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFFFFC107)
+        )
     }
 }
-
-
-
-
-
 
 
 

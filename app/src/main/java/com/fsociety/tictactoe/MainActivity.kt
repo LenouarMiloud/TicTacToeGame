@@ -30,26 +30,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-@Composable
-fun TicTacToe() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Tic Tac Toe",
-            fontSize = 32.sp
-        )
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TicTacToeTheme {
-        TicTacToe()
-    }
-}
