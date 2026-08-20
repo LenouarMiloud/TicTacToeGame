@@ -75,7 +75,7 @@ fun MainMenuScreen(
         Spacer(Modifier.height(20.dp))
 
         Button(
-            onClick = onPlayerVsPlayerClick,
+            onClick = onPlayerVsPhoneClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(65.dp),
