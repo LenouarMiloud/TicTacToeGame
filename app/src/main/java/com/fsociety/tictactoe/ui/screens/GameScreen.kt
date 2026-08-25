@@ -38,6 +38,10 @@ fun GameScreen(
 
     val currentPlayer by gameViewModel.currentPlayer.collectAsState()
 
+    val winner by gameViewModel.winner.collectAsState()
+
+    val isDraw by gameViewModel.isDraw.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -59,10 +63,14 @@ fun GameScreen(
         )
 
         Text(
-            text = "دور اللاعب: $currentPlayer",
+            text = when {
+                winner != null -> "🏆 الفائز: $winner"
+                isDraw -> "🤝 تعادل!"
+                else -> "دور اللاعب: $currentPlayer"
+            },
+            color = Color(0xFF00E5FF),
             fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF00E5FF)
+            fontWeight = FontWeight.Bold
         )
 
         Spacer(
