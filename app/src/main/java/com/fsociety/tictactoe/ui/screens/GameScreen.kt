@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,18 +26,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fsociety.tictactoe.viewmodel.GameViewModel
 
 @Composable
-fun GameScreen(){
-    var board by remember {
-        mutableStateOf(
-            List(9){""}
-        )
-    }
+fun GameScreen(
+    gameViewModel: GameViewModel = viewModel()
+) {
 
-    var currentPlayer by remember {
-        mutableStateOf("X")
-    }
+    val board by gameViewModel.board.collectAsState()
+
+    val currentPlayer by gameViewModel.currentPlayer.collectAsState()
 
     Column(
         modifier = Modifier
@@ -46,6 +46,7 @@ fun GameScreen(){
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+
         Text(
             text = "TIC TAC TOE",
             fontSize = 36.sp,
@@ -53,45 +54,39 @@ fun GameScreen(){
             color = Color.White
         )
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
 
         Text(
-            text = "دور اللاعب :$currentPlayer",
+            text = "دور اللاعب: $currentPlayer",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF00E5FF)
         )
 
-        Spacer(Modifier.height(35.dp))
+        Spacer(
+            modifier = Modifier.height(35.dp)
+        )
 
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            for (row in 0 .. 2){
+
+            for (row in 0..2) {
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    for (column in 0 .. 2){
+
+                    for (column in 0..2) {
+
                         val index = row * 3 + column
+
                         GameCell(
                             value = board[index],
                             onClick = {
-
-                                if (board[index].isEmpty()) {
-
-                                    val newBoard = board.toMutableList()
-
-                                    newBoard[index] = currentPlayer
-
-                                    board = newBoard
-
-                                    currentPlayer =
-                                        if (currentPlayer == "X") {
-                                            "O"
-                                        } else {
-                                            "X"
-                                        }
-                                }
+                                gameViewModel.makeMove(index)
                             }
                         )
                     }
@@ -112,11 +107,13 @@ fun GameScreen(){
     }
 }
 
+
 @Composable
 private fun GameCell(
     value: String,
     onClick: () -> Unit
-){
+) {
+
     Box(
         modifier = Modifier
             .size(95.dp)

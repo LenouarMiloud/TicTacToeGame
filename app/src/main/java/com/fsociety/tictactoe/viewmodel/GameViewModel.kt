@@ -6,39 +6,35 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class GameViewModel : ViewModel() {
-    private var _board = MutableStateFlow(
+    private val _board = MutableStateFlow(
         List(9) { "" }
     )
-    val board: StateFlow<List<String>> = _board.asStateFlow()
-    private val _currentPlayer = MutableStateFlow("X")
-    val currentPlayer: StateFlow<String> = _currentPlayer.asStateFlow()
 
-    fun MakeMove(index: Int) {
-        val currentBoard = _board.value
-        if (currentBoard.isNotEmpty()) {
+    val board: StateFlow<List<String>> = _board.asStateFlow()
+
+    private val _currentPlayer = MutableStateFlow("X")
+
+    val currentPlayer: StateFlow<String> =
+        _currentPlayer.asStateFlow()
+
+
+    fun makeMove(index: Int) {
+
+        if (_board.value[index].isNotEmpty()) {
             return
         }
 
-        val newBoard = currentBoard.toMutableList()
+        val newBoard = _board.value.toMutableList()
+
         newBoard[index] = _currentPlayer.value
+
         _board.value = newBoard
+
         _currentPlayer.value =
-            if (_currentPlayer.value == "X"){
+            if (_currentPlayer.value == "X") {
                 "O"
-            }else{
+            } else {
                 "X"
             }
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-
