@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.fsociety.tictactoe.ui.screens.GameModeScreen
+import com.fsociety.tictactoe.ui.screens.GameScreen
 import com.fsociety.tictactoe.ui.screens.MainMenuScreen
 import com.fsociety.tictactoe.ui.screens.Screen
 
@@ -57,7 +58,7 @@ fun AppNavigation(
         composable(
             route = Screen.Game.route
         ) {
-
+            GameScreen()
         }
     }
 }
