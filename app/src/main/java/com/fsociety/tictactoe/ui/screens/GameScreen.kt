@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -31,6 +32,7 @@ import com.fsociety.tictactoe.viewmodel.GameViewModel
 
 @Composable
 fun GameScreen(
+    onBackToMenu: () -> Unit,
     gameViewModel: GameViewModel = viewModel()
 ) {
 
@@ -41,6 +43,8 @@ fun GameScreen(
     val winner by gameViewModel.winner.collectAsState()
 
     val isDraw by gameViewModel.isDraw.collectAsState()
+
+    
 
     Column(
         modifier = Modifier
@@ -101,6 +105,54 @@ fun GameScreen(
                 }
             }
         }
+
+        Spacer(
+            modifier = Modifier.height(25.dp)
+        )
+
+        if (winner != null || isDraw) {
+
+            Text(
+                text = if (winner != null) {
+                    "🏆 الفائز: $winner"
+                } else {
+                    "🤝 تعادل!"
+                },
+                color = Color(0xFFFFC107),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(
+                modifier = Modifier.height(20.dp)
+            )
+
+            Button(
+                onClick = {
+                    gameViewModel.resetGame()
+                }
+            ) {
+                Text(
+                    text = "🔄 إعادة اللعب",
+                    fontSize = 18.sp
+                )
+            }
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            Button(
+                onClick = {
+                    onBackToMenu()
+                }
+            ) {
+                Text(
+                    text = "🏠 القائمة الرئيسية",
+                    fontSize = 18.sp
+                )
+            }
+        }
+
 
         Spacer(
             modifier = Modifier.height(35.dp)

@@ -58,7 +58,23 @@ fun AppNavigation(
         composable(
             route = Screen.Game.route
         ) {
-            GameScreen()
+            GameScreen(
+                onBackToMenu = {
+
+                    navController.navigate(
+                        Screen.MainMenu.route
+                    ) {
+
+                        popUpTo(
+                            Screen.MainMenu.route
+                        ) {
+                            inclusive = false
+                        }
+
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
     }
 }
