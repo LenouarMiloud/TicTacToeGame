@@ -34,7 +34,7 @@ fun AppNavigation(
                 onPlayerVsPhoneClick = {
 
                     navController.navigate(
-                        Screen.GameMode.route
+                        "game/NORMAL/HUMAN"
                     )
                 }
             )
