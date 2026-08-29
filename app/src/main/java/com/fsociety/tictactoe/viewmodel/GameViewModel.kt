@@ -3,6 +3,7 @@ package com.fsociety.tictactoe.viewmodel
 import androidx.lifecycle.ViewModel
 import com.fsociety.tictactoe.domain.GameLogic
 import com.fsociety.tictactoe.domain.ai.EasyAi
+import com.fsociety.tictactoe.domain.ai.NormalAi
 import com.fsociety.tictactoe.ui.screens.Difficulty
 import com.fsociety.tictactoe.ui.screens.FirstPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -121,7 +122,11 @@ class GameViewModel : ViewModel() {
             }
 
             Difficulty.MEDIUM -> {
-                EasyAi.getMove(_board.value)
+                NormalAi.getMove(
+                    board = _board.value,
+                    phoneMark = phoneMark,
+                    humanMark = humanMark
+                )
             }
 
             Difficulty.HARD -> {
