@@ -2,59 +2,158 @@ package com.fsociety.tictactoe.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.fsociety.tictactoe.domain.GameLogic
+import com.fsociety.tictactoe.domain.ai.EasyAi
+import com.fsociety.tictactoe.ui.screens.Difficulty
+import com.fsociety.tictactoe.ui.screens.FirstPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class GameViewModel : ViewModel() {
 
-    private val _board = MutableStateFlow(
-        List(9) { "" }
-    )
+    private val _board =
+        MutableStateFlow(List(9) { "" })
 
     val board: StateFlow<List<String>> =
         _board.asStateFlow()
 
 
-    private val _currentPlayer = MutableStateFlow("X")
+    private val _currentPlayer =
+        MutableStateFlow("X")
 
     val currentPlayer: StateFlow<String> =
         _currentPlayer.asStateFlow()
 
 
-    private val _winner = MutableStateFlow<String?>(null)
+    private val _winner =
+        MutableStateFlow<String?>(null)
 
     val winner: StateFlow<String?> =
         _winner.asStateFlow()
 
 
-    private val _isDraw = MutableStateFlow(false)
+    private val _isDraw =
+        MutableStateFlow(false)
 
     val isDraw: StateFlow<Boolean> =
         _isDraw.asStateFlow()
 
 
+    private var difficulty =
+        Difficulty.EASY
+
+    private var humanMark = "X"
+
+    private var phoneMark = "O"
+
+
+    fun setupGame(
+        difficulty: Difficulty,
+        firstPlayer: FirstPlayer
+    ) {
+
+        this.difficulty = difficulty
+
+        if (firstPlayer == FirstPlayer.HUMAN) {
+
+            humanMark = "X"
+            phoneMark = "O"
+
+        } else {
+
+            humanMark = "O"
+            phoneMark = "X"
+        }
+
+        resetGame()
+
+        if (firstPlayer == FirstPlayer.PHONE) {
+
+            makePhoneMove()
+        }
+    }
+
+
     fun makeMove(index: Int) {
 
-        // اللعبة انتهت
         if (isGameOver()) {
             return
         }
 
-        // الخانة مستخدمة
         if (_board.value[index].isNotEmpty()) {
             return
         }
 
-        val newBoard = _board.value.toMutableList()
+        // لا يمكن للاعب اللعب خارج دوره
+        if (_currentPlayer.value != humanMark) {
+            return
+        }
 
-        newBoard[index] = _currentPlayer.value
+        val newBoard =
+            _board.value.toMutableList()
+
+        newBoard[index] = humanMark
 
         _board.value = newBoard
 
-        // التحقق من الفائز
+        checkGameState()
+
+        if (isGameOver()) {
+            return
+        }
+
+        _currentPlayer.value = phoneMark
+
+        makePhoneMove()
+    }
+
+
+    private fun makePhoneMove() {
+
+        if (isGameOver()) {
+            return
+        }
+
+        val move = when (difficulty) {
+
+            Difficulty.EASY -> {
+                EasyAi.getMove(_board.value)
+            }
+
+            Difficulty.MEDIUM -> {
+                EasyAi.getMove(_board.value)
+            }
+
+            Difficulty.HARD -> {
+                EasyAi.getMove(_board.value)
+            }
+        }
+
+        if (move == null) {
+            return
+        }
+
+        val newBoard =
+            _board.value.toMutableList()
+
+        newBoard[move] = phoneMark
+
+        _board.value = newBoard
+
+        checkGameState()
+
+        if (isGameOver()) {
+            return
+        }
+
+        _currentPlayer.value = humanMark
+    }
+
+
+    private fun checkGameState() {
+
         val winnerPlayer =
-            GameLogic.checkWinner(newBoard)
+            GameLogic.checkWinner(_board.value)
 
         if (winnerPlayer != null) {
 
@@ -63,21 +162,10 @@ class GameViewModel : ViewModel() {
             return
         }
 
-        // التحقق من التعادل
-        if (GameLogic.isDraw(newBoard)) {
+        if (GameLogic.isDraw(_board.value)) {
 
             _isDraw.value = true
-
-            return
         }
-
-        // تغيير اللاعب
-        _currentPlayer.value =
-            if (_currentPlayer.value == "X") {
-                "O"
-            } else {
-                "X"
-            }
     }
 
 
@@ -90,7 +178,8 @@ class GameViewModel : ViewModel() {
 
     fun resetGame() {
 
-        _board.value = List(9) { "" }
+        _board.value =
+            List(9) { "" }
 
         _currentPlayer.value = "X"
 

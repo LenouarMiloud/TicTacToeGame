@@ -2,8 +2,12 @@ package com.fsociety.tictactoe.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.fsociety.tictactoe.ui.screens.Difficulty
+import com.fsociety.tictactoe.ui.screens.FirstPlayer
 import com.fsociety.tictactoe.ui.screens.GameModeScreen
 import com.fsociety.tictactoe.ui.screens.GameScreen
 import com.fsociety.tictactoe.ui.screens.MainMenuScreen
@@ -27,14 +31,14 @@ fun AppNavigation(
                 onPlayerVsPlayerClick = {
 
                     navController.navigate(
-                        Screen.Game.route
+                        "game/${Difficulty.MEDIUM.name}/${FirstPlayer.HUMAN.name}"
                     )
                 },
 
                 onPlayerVsPhoneClick = {
 
                     navController.navigate(
-                        "game/NORMAL/HUMAN"
+                        Screen.GameMode.route
                     )
                 }
             )
@@ -49,16 +53,42 @@ fun AppNavigation(
                 onStartGame = { difficulty, firstPlayer ->
 
                     navController.navigate(
-                        Screen.Game.route
+                        "game/${difficulty.name}/${firstPlayer.name}"
                     )
                 }
             )
         }
 
         composable(
-            route = Screen.Game.route
-        ) {
+            route = Screen.Game.route,
+
+            arguments = listOf(
+                navArgument("difficulty") {
+                    type = NavType.StringType
+                },
+
+                navArgument("firstPlayer") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+
+            val difficulty = Difficulty.valueOf(
+                backStackEntry.arguments
+                    ?.getString("difficulty")
+                    ?: Difficulty.MEDIUM.name
+            )
+
+            val firstPlayer = FirstPlayer.valueOf(
+                backStackEntry.arguments
+                    ?.getString("firstPlayer")
+                    ?: FirstPlayer.HUMAN.name
+            )
+
             GameScreen(
+                difficulty = difficulty,
+                firstPlayer = firstPlayer,
+
                 onBackToMenu = {
 
                     navController.navigate(
