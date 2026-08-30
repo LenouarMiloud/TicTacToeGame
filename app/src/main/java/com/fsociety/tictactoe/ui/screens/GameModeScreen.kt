@@ -35,6 +35,11 @@ enum class FirstPlayer{
     PHONE
 }
 
+enum class GameType {
+    PLAYER_VS_PLAYER,
+    PLAYER_VS_PHONE
+}
+
 @Composable
 fun GameModeScreen(
     onStartGame:(

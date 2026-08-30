@@ -57,6 +57,26 @@ class GameViewModel : ViewModel() {
 
     private var phoneMark = "O"
 
+    private val _humanScore =
+        MutableStateFlow(0)
+
+    val humanScore: StateFlow<Int> =
+        _humanScore.asStateFlow()
+
+
+    private val _phoneScore =
+        MutableStateFlow(0)
+
+    val phoneScore: StateFlow<Int> =
+        _phoneScore.asStateFlow()
+
+
+    private val _drawScore =
+        MutableStateFlow(0)
+
+    val drawScore: StateFlow<Int> =
+        _drawScore.asStateFlow()
+
 
     fun setupGame(
         difficulty: Difficulty,
@@ -201,12 +221,20 @@ class GameViewModel : ViewModel() {
 
             _winner.value = winnerPlayer
 
+            if (winnerPlayer == humanMark) {
+                _humanScore.value++
+            } else {
+                _phoneScore.value++
+            }
+
             return
         }
 
         if (GameLogic.isDraw(_board.value)) {
 
             _isDraw.value = true
+
+            _drawScore.value++
         }
     }
 
@@ -230,5 +258,14 @@ class GameViewModel : ViewModel() {
         _isDraw.value = false
 
         _isPhoneThinking.value = false
+    }
+
+    fun resetScore() {
+
+        _humanScore.value = 0
+
+        _phoneScore.value = 0
+
+        _drawScore.value = 0
     }
 }

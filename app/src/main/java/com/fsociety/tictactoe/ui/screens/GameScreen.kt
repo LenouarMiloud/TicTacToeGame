@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -46,6 +47,12 @@ fun GameScreen(
 
     val isPhoneThinking by gameViewModel.isPhoneThinking.collectAsState()
 
+    val humanScore by gameViewModel.humanScore.collectAsState()
+
+    val phoneScore by gameViewModel.phoneScore.collectAsState()
+
+    val drawScore by gameViewModel.drawScore.collectAsState()
+
     LaunchedEffect(difficulty, firstPlayer) {
 
         gameViewModel.setupGame(
@@ -74,6 +81,72 @@ fun GameScreen(
         Spacer(
             modifier = Modifier.height(20.dp)
         )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = "👤 أنت",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = humanScore.toString(),
+                    color = Color(0xFF00E5FF),
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            }
+
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = "🤝",
+                    color = Color.White,
+                    fontSize = 18.sp
+                )
+
+                Text(
+                    text = drawScore.toString(),
+                    color = Color(0xFFFFC107),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = "🤖 الهاتف",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = phoneScore.toString(),
+                    color = Color(0xFFFF4081),
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            }
+        }
 
         Text(
             text = when {
@@ -164,6 +237,7 @@ fun GameScreen(
 
             Button(
                 onClick = {
+                    gameViewModel.resetScore()
                     onBackToMenu()
                 }
             ) {
