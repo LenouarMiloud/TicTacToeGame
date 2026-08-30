@@ -44,6 +44,8 @@ fun GameScreen(
 
     val isDraw by gameViewModel.isDraw.collectAsState()
 
+    val isPhoneThinking by gameViewModel.isPhoneThinking.collectAsState()
+
     LaunchedEffect(difficulty, firstPlayer) {
 
         gameViewModel.setupGame(
@@ -75,12 +77,24 @@ fun GameScreen(
 
         Text(
             text = when {
-                winner != null -> "🏆 الفائز: $winner"
-                isDraw -> "🤝 تعادل!"
-                else -> "الدور الحالي: $currentPlayer"
+
+                winner != null ->
+                    "🏆 الفائز: $winner"
+
+                isDraw ->
+                    "🤝 تعادل!"
+
+                isPhoneThinking ->
+                    "🤖 الهاتف يفكر..."
+
+                else ->
+                    "👤 دورك ($currentPlayer)"
             },
+
             color = Color(0xFF00E5FF),
+
             fontSize = 20.sp,
+
             fontWeight = FontWeight.Bold
         )
 

@@ -1,15 +1,18 @@
 package com.fsociety.tictactoe.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.fsociety.tictactoe.domain.GameLogic
 import com.fsociety.tictactoe.domain.ai.EasyAi
 import com.fsociety.tictactoe.domain.ai.HardAi
 import com.fsociety.tictactoe.domain.ai.NormalAi
 import com.fsociety.tictactoe.ui.screens.Difficulty
 import com.fsociety.tictactoe.ui.screens.FirstPlayer
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class GameViewModel : ViewModel() {
 
@@ -36,6 +39,12 @@ class GameViewModel : ViewModel() {
 
     private val _isDraw =
         MutableStateFlow(false)
+
+    private val _isPhoneThinking =
+        MutableStateFlow(false)
+
+    val isPhoneThinking: StateFlow<Boolean> =
+        _isPhoneThinking.asStateFlow()
 
     val isDraw: StateFlow<Boolean> =
         _isDraw.asStateFlow()
@@ -82,6 +91,10 @@ class GameViewModel : ViewModel() {
             return
         }
 
+        if (_isPhoneThinking.value) {
+            return
+        }
+
         if (_board.value[index].isNotEmpty()) {
             return
         }
@@ -116,47 +129,66 @@ class GameViewModel : ViewModel() {
             return
         }
 
-        val move = when (difficulty) {
+        _isPhoneThinking.value = true
 
-            Difficulty.EASY -> {
-                EasyAi.getMove(_board.value)
+        viewModelScope.launch {
+
+            delay(500)
+
+            if (isGameOver()) {
+
+                _isPhoneThinking.value = false
+
+                return@launch
             }
 
-            Difficulty.MEDIUM -> {
-                NormalAi.getMove(
-                    board = _board.value,
-                    phoneMark = phoneMark,
-                    humanMark = humanMark
-                )
+            val move = when (difficulty) {
+
+                Difficulty.EASY -> {
+
+                    EasyAi.getMove(
+                        _board.value
+                    )
+                }
+
+                Difficulty.MEDIUM -> {
+
+                    NormalAi.getMove(
+                        board = _board.value,
+                        phoneMark = phoneMark,
+                        humanMark = humanMark
+                    )
+                }
+
+                Difficulty.HARD -> {
+
+                    HardAi.getMove(
+                        board = _board.value,
+                        phoneMark = phoneMark,
+                        humanMark = humanMark
+                    )
+                }
             }
 
-            Difficulty.HARD -> {
-                HardAi.getMove(
-                    board = _board.value,
-                    phoneMark = phoneMark,
-                    humanMark = humanMark
-                )
+            if (move != null) {
+
+                val newBoard =
+                    _board.value.toMutableList()
+
+                newBoard[move] = phoneMark
+
+                _board.value = newBoard
+
+                checkGameState()
+            }
+
+            _isPhoneThinking.value = false
+
+            if (!isGameOver()) {
+
+                _currentPlayer.value = humanMark
             }
         }
-
-        if (move == null) {
-            return
-        }
-
-        val newBoard =
-            _board.value.toMutableList()
-
-        newBoard[move] = phoneMark
-
-        _board.value = newBoard
-
-        checkGameState()
-
-        if (isGameOver()) {
-            return
-        }
-
-        _currentPlayer.value = humanMark
     }
 
 
@@ -196,5 +228,7 @@ class GameViewModel : ViewModel() {
         _winner.value = null
 
         _isDraw.value = false
+
+        _isPhoneThinking.value = false
     }
 }
