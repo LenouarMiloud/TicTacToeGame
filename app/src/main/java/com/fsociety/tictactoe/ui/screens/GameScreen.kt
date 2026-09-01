@@ -44,6 +44,8 @@ fun GameScreen(
 
     val winner by gameViewModel.winner.collectAsState()
 
+    val winningLine by gameViewModel.winningLine.collectAsState()
+
     val isDraw by gameViewModel.isDraw.collectAsState()
 
     val isPhoneThinking by gameViewModel.isPhoneThinking.collectAsState()

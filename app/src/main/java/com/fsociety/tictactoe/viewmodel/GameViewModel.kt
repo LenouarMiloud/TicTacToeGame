@@ -37,6 +37,11 @@ class GameViewModel : ViewModel() {
     val winner: StateFlow<String?> =
         _winner.asStateFlow()
 
+    private val _winningLine =
+        MutableStateFlow<List<Int>>(emptyList())
+
+    val winningLine: StateFlow<List<Int>> =
+        _winningLine.asStateFlow()
 
     private val _isDraw =
         MutableStateFlow(false)
@@ -287,6 +292,10 @@ class GameViewModel : ViewModel() {
 
             _winner.value = winnerPlayer
 
+            _winningLine.value =
+                GameLogic.getWinningLine(_board.value)
+                    ?: emptyList()
+
             if (gameType == GameType.PLAYER_VS_PLAYER) {
 
                 if (winnerPlayer == "X") {
@@ -333,6 +342,8 @@ class GameViewModel : ViewModel() {
             "X"
 
         _winner.value = null
+
+        _winningLine.value = emptyList()
 
         _isDraw.value = false
 
