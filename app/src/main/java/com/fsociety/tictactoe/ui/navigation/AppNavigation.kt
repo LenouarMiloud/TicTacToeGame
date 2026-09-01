@@ -10,6 +10,7 @@ import com.fsociety.tictactoe.ui.screens.Difficulty
 import com.fsociety.tictactoe.ui.screens.FirstPlayer
 import com.fsociety.tictactoe.ui.screens.GameModeScreen
 import com.fsociety.tictactoe.ui.screens.GameScreen
+import com.fsociety.tictactoe.ui.screens.GameType
 import com.fsociety.tictactoe.ui.screens.MainMenuScreen
 import com.fsociety.tictactoe.ui.screens.Screen
 
@@ -31,14 +32,14 @@ fun AppNavigation(
                 onPlayerVsPlayerClick = {
 
                     navController.navigate(
-                        "game/${Difficulty.MEDIUM.name}/${FirstPlayer.HUMAN.name}"
+                        "game/PLAYER_VS_PLAYER/EASY/HUMAN"
                     )
                 },
 
                 onPlayerVsPhoneClick = {
 
                     navController.navigate(
-                        Screen.GameMode.route
+                        route = Screen.GameMode.route
                     )
                 }
             )
@@ -53,7 +54,7 @@ fun AppNavigation(
                 onStartGame = { difficulty, firstPlayer ->
 
                     navController.navigate(
-                        "game/${difficulty.name}/${firstPlayer.name}"
+                        "game/${GameType.PLAYER_VS_PHONE.name}/${difficulty.name}/${firstPlayer.name}"
                     )
                 }
             )
@@ -61,48 +62,46 @@ fun AppNavigation(
 
         composable(
             route = Screen.Game.route,
-
             arguments = listOf(
+                navArgument("gameType") {
+                    type = NavType.StringType
+                },
                 navArgument("difficulty") {
                     type = NavType.StringType
                 },
-
                 navArgument("firstPlayer") {
                     type = NavType.StringType
                 }
             )
         ) { backStackEntry ->
 
-            val difficulty = Difficulty.valueOf(
-                backStackEntry.arguments
-                    ?.getString("difficulty")
-                    ?: Difficulty.MEDIUM.name
-            )
+            val gameType =
+                GameType.valueOf(
+                    backStackEntry.arguments
+                        ?.getString("gameType")
+                        ?: GameType.PLAYER_VS_PHONE.name
+                )
 
-            val firstPlayer = FirstPlayer.valueOf(
-                backStackEntry.arguments
-                    ?.getString("firstPlayer")
-                    ?: FirstPlayer.HUMAN.name
-            )
+            val difficulty =
+                Difficulty.valueOf(
+                    backStackEntry.arguments
+                        ?.getString("difficulty")
+                        ?: Difficulty.EASY.name
+                )
+
+            val firstPlayer =
+                FirstPlayer.valueOf(
+                    backStackEntry.arguments
+                        ?.getString("firstPlayer")
+                        ?: FirstPlayer.HUMAN.name
+                )
 
             GameScreen(
+                gameType = gameType,
                 difficulty = difficulty,
                 firstPlayer = firstPlayer,
-
                 onBackToMenu = {
-
-                    navController.navigate(
-                        Screen.MainMenu.route
-                    ) {
-
-                        popUpTo(
-                            Screen.MainMenu.route
-                        ) {
-                            inclusive = false
-                        }
-
-                        launchSingleTop = true
-                    }
+                    navController.popBackStack()
                 }
             )
         }

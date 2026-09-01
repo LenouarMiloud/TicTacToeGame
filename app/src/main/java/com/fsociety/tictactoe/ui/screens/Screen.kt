@@ -8,5 +8,5 @@ sealed class Screen(
 
     data object GameMode : Screen("game_mode")
 
-    data object Game : Screen("game/{difficulty}/{firstPlayer}")
+    data object Game : Screen("game/{gameType}/{difficulty}/{firstPlayer}")
 }

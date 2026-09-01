@@ -31,6 +31,7 @@ import com.fsociety.tictactoe.viewmodel.GameViewModel
 
 @Composable
 fun GameScreen(
+    gameType: GameType,
     difficulty: Difficulty,
     firstPlayer: FirstPlayer,
     onBackToMenu: () -> Unit,
@@ -53,9 +54,10 @@ fun GameScreen(
 
     val drawScore by gameViewModel.drawScore.collectAsState()
 
-    LaunchedEffect(difficulty, firstPlayer) {
+    LaunchedEffect(gameType,difficulty, firstPlayer) {
 
         gameViewModel.setupGame(
+            gameType = gameType,
             difficulty = difficulty,
             firstPlayer = firstPlayer
         )

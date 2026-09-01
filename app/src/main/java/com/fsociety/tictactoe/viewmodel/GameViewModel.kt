@@ -8,6 +8,7 @@ import com.fsociety.tictactoe.domain.ai.HardAi
 import com.fsociety.tictactoe.domain.ai.NormalAi
 import com.fsociety.tictactoe.ui.screens.Difficulty
 import com.fsociety.tictactoe.ui.screens.FirstPlayer
+import com.fsociety.tictactoe.ui.screens.GameType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,15 +41,19 @@ class GameViewModel : ViewModel() {
     private val _isDraw =
         MutableStateFlow(false)
 
+    val isDraw: StateFlow<Boolean> =
+        _isDraw.asStateFlow()
+
+
     private val _isPhoneThinking =
         MutableStateFlow(false)
 
     val isPhoneThinking: StateFlow<Boolean> =
         _isPhoneThinking.asStateFlow()
 
-    val isDraw: StateFlow<Boolean> =
-        _isDraw.asStateFlow()
 
+    private var gameType =
+        GameType.PLAYER_VS_PHONE
 
     private var difficulty =
         Difficulty.EASY
@@ -56,6 +61,7 @@ class GameViewModel : ViewModel() {
     private var humanMark = "X"
 
     private var phoneMark = "O"
+
 
     private val _humanScore =
         MutableStateFlow(0)
@@ -79,26 +85,43 @@ class GameViewModel : ViewModel() {
 
 
     fun setupGame(
+        gameType: GameType,
         difficulty: Difficulty,
         firstPlayer: FirstPlayer
     ) {
 
+        this.gameType = gameType
         this.difficulty = difficulty
 
-        if (firstPlayer == FirstPlayer.HUMAN) {
+        if (gameType == GameType.PLAYER_VS_PHONE) {
 
-            humanMark = "X"
-            phoneMark = "O"
+            if (firstPlayer == FirstPlayer.HUMAN) {
+
+                humanMark = "X"
+                phoneMark = "O"
+
+            } else {
+
+                humanMark = "O"
+                phoneMark = "X"
+            }
 
         } else {
 
-            humanMark = "O"
-            phoneMark = "X"
+            // في Player vs Player
+            // لا يوجد Human/Phone
+            // X يبدأ دائمًا
+
+            humanMark = "X"
+            phoneMark = "O"
         }
 
         resetGame()
 
-        if (firstPlayer == FirstPlayer.PHONE) {
+        if (
+            gameType == GameType.PLAYER_VS_PHONE &&
+            firstPlayer == FirstPlayer.PHONE
+        ) {
 
             makePhoneMove()
         }
@@ -119,7 +142,43 @@ class GameViewModel : ViewModel() {
             return
         }
 
-        // لا يمكن للاعب اللعب خارج دوره
+
+        /*
+         * PLAYER VS PLAYER
+         */
+        if (gameType == GameType.PLAYER_VS_PLAYER) {
+
+            val newBoard =
+                _board.value.toMutableList()
+
+            newBoard[index] =
+                _currentPlayer.value
+
+            _board.value = newBoard
+
+            checkGameState()
+
+            if (isGameOver()) {
+                return
+            }
+
+            // تبديل X ↔ O
+            _currentPlayer.value =
+                if (_currentPlayer.value == "X") {
+                    "O"
+                } else {
+                    "X"
+                }
+
+            return
+        }
+
+
+        /*
+         * PLAYER VS PHONE
+         */
+
+        // لا يمكن للاعب اللعب إلا في دوره
         if (_currentPlayer.value != humanMark) {
             return
         }
@@ -144,6 +203,10 @@ class GameViewModel : ViewModel() {
 
 
     private fun makePhoneMove() {
+
+        if (gameType != GameType.PLAYER_VS_PHONE) {
+            return
+        }
 
         if (isGameOver()) {
             return
@@ -190,6 +253,7 @@ class GameViewModel : ViewModel() {
                 }
             }
 
+
             if (move != null) {
 
                 val newBoard =
@@ -202,11 +266,13 @@ class GameViewModel : ViewModel() {
                 checkGameState()
             }
 
+
             _isPhoneThinking.value = false
 
             if (!isGameOver()) {
 
-                _currentPlayer.value = humanMark
+                _currentPlayer.value =
+                    humanMark
             }
         }
     }
@@ -221,14 +287,26 @@ class GameViewModel : ViewModel() {
 
             _winner.value = winnerPlayer
 
-            if (winnerPlayer == humanMark) {
-                _humanScore.value++
+            if (gameType == GameType.PLAYER_VS_PLAYER) {
+
+                if (winnerPlayer == "X") {
+                    _humanScore.value++
+                } else {
+                    _phoneScore.value++
+                }
+
             } else {
-                _phoneScore.value++
+
+                if (winnerPlayer == humanMark) {
+                    _humanScore.value++
+                } else {
+                    _phoneScore.value++
+                }
             }
 
             return
         }
+
 
         if (GameLogic.isDraw(_board.value)) {
 
@@ -251,7 +329,8 @@ class GameViewModel : ViewModel() {
         _board.value =
             List(9) { "" }
 
-        _currentPlayer.value = "X"
+        _currentPlayer.value =
+            "X"
 
         _winner.value = null
 
@@ -259,6 +338,7 @@ class GameViewModel : ViewModel() {
 
         _isPhoneThinking.value = false
     }
+
 
     fun resetScore() {
 
