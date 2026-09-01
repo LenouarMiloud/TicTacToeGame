@@ -195,6 +195,7 @@ fun GameScreen(
 
                         GameCell(
                             value = board[index],
+                            isWinningCell = index in winningLine,
                             onClick = {
                                 gameViewModel.makeMove(index)
                             }
@@ -270,6 +271,7 @@ fun GameScreen(
 @Composable
 private fun GameCell(
     value: String,
+    isWinningCell: Boolean,
     onClick: () -> Unit
 ) {
 
@@ -282,7 +284,11 @@ private fun GameCell(
                 shape = RoundedCornerShape(12.dp)
             )
             .background(
-                color = Color(0xFF252532),
+                color = if (isWinningCell) {
+                    Color(0xFF00C853)
+                } else {
+                    Color(0xFF252532)
+                },
                 shape = RoundedCornerShape(12.dp)
             )
             .clickable {
