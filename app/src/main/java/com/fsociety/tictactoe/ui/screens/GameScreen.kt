@@ -1,5 +1,6 @@
 package com.fsociety.tictactoe.ui.screens
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,7 +23,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -179,30 +182,84 @@ fun GameScreen(
             modifier = Modifier.height(35.dp)
         )
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        Box(
+            contentAlignment = Alignment.Center
+        ){
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
 
-            for (row in 0..2) {
+                for (row in 0..2) {
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
 
-                    for (column in 0..2) {
+                        for (column in 0..2) {
 
-                        val index = row * 3 + column
+                            val index = row * 3 + column
 
-                        GameCell(
-                            value = board[index],
-                            isWinningCell = index in winningLine,
-                            onClick = {
-                                gameViewModel.makeMove(index)
-                            }
-                        )
+                            GameCell(
+                                value = board[index],
+                                isWinningCell = index in winningLine,
+                                onClick = {
+                                    gameViewModel.makeMove(index)
+                                }
+                            )
+                        }
                     }
                 }
             }
+
+            if (winningLine.isNotEmpty()) {
+
+                Canvas(
+                    modifier = Modifier.size(301.dp)
+                ) {
+
+                    val cellSize = size.width / 3f
+
+                    val startIndex = winningLine.first()
+                    val endIndex = winningLine.last()
+
+                    val startRow = startIndex / 3
+                    val startColumn = startIndex % 3
+
+                    val endRow = endIndex / 3
+                    val endColumn = endIndex % 3
+
+                    val startX =
+                        startColumn * cellSize + cellSize / 2
+
+                    val startY =
+                        startRow * cellSize + cellSize / 2
+
+                    val endX =
+                        endColumn * cellSize + cellSize / 2
+
+                    val endY =
+                        endRow * cellSize + cellSize / 2
+
+                    // Glow
+                    drawLine(
+                        color = Color(0x55FFD700),
+                        start = Offset(startX, startY),
+                        end = Offset(endX, endY),
+                        strokeWidth = 14f,
+                        cap = StrokeCap.Round
+                    )
+
+                    // الخط الأساسي
+                    drawLine(
+                        color = Color(0xFFFFD700),
+                        start = Offset(startX, startY),
+                        end = Offset(endX, endY),
+                        strokeWidth = 6f,
+                        cap = StrokeCap.Round
+                    )
+                }
+            }
+
         }
 
         Spacer(
