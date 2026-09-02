@@ -1,5 +1,12 @@
 package com.fsociety.tictactoe.ui.screens
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,11 +28,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,6 +67,22 @@ fun GameScreen(
     val phoneScore by gameViewModel.phoneScore.collectAsState()
 
     val drawScore by gameViewModel.drawScore.collectAsState()
+
+    val lineProgress = remember { Animatable(0f) }
+
+    LaunchedEffect(winningLine) {
+        if (winningLine.isNotEmpty()) {
+            lineProgress.snapTo(0f)
+            lineProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(
+                    durationMillis = 2000
+                )
+            )
+        } else {
+            lineProgress.snapTo(0f)
+        }
+    }
 
     LaunchedEffect(gameType,difficulty, firstPlayer) {
 
@@ -212,7 +237,14 @@ fun GameScreen(
             }
 
             if (winningLine.isNotEmpty()) {
+                /*val lineProgress by animateFloatAsState(
+                    targetValue = 1f,
+                    animationSpec = tween(
+                        durationMillis = 500000
+                    ),
+                    label = "winningLineAnimation"
 
+                )*/
                 Canvas(
                     modifier = Modifier.size(301.dp)
                 ) {
@@ -240,11 +272,17 @@ fun GameScreen(
                     val endY =
                         endRow * cellSize + cellSize / 2
 
+                    val animatedEndX =
+                        startX + (endX - startX) * lineProgress.value
+
+                    val animatedEndY =
+                        startY + (endY - startY) * lineProgress.value
+
                     // Glow
                     drawLine(
                         color = Color(0x55FFD700),
                         start = Offset(startX, startY),
-                        end = Offset(endX, endY),
+                        end = Offset(animatedEndX, animatedEndY),
                         strokeWidth = 14f,
                         cap = StrokeCap.Round
                     )
@@ -253,7 +291,7 @@ fun GameScreen(
                     drawLine(
                         color = Color(0xFFFFD700),
                         start = Offset(startX, startY),
-                        end = Offset(endX, endY),
+                        end = Offset(animatedEndX, animatedEndY),
                         strokeWidth = 6f,
                         cap = StrokeCap.Round
                     )
@@ -332,9 +370,27 @@ private fun GameCell(
     onClick: () -> Unit
 ) {
 
+    val infiniteTransition = rememberInfiniteTransition(
+        label = "winningPulse"
+    )
+
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(600),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulseScale"
+    )
+
     Box(
         modifier = Modifier
             .size(95.dp)
+            .graphicsLayer {
+                scaleX = if (isWinningCell) pulseScale else 1f
+                scaleY = if (isWinningCell) pulseScale else 1f
+            }
             .border(
                 width = 2.dp,
                 color = Color(0xFF673AB7),
