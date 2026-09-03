@@ -312,23 +312,44 @@ fun GameScreen(
                 ),
                 label = "resultScale"
             )
+            val showResult = winner != null || isDraw
 
             if (winner != null || isDraw) {
 
-                Text(
-                    text = if (winner != null) {
-                        "🏆 الفائز: $winner"
-                    } else {
-                        "🤝 تعادل!"
-                    },
-                    color = Color(0xFFFFC107),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.graphicsLayer {
-                        scaleX = resultScale
-                        scaleY = resultScale
-                    }
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .graphicsLayer {
+                            scaleX = resultScale
+                            scaleY = resultScale
+                        }
+                        .background(
+                            color = Color(0xFF1C1C2B),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .border(
+                            width = 2.dp,
+                            color = Color(0xFFFFC107),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(
+                            horizontal = 24.dp,
+                            vertical = 20.dp
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (winner != null) {
+                            "🏆 الفائز: $winner"
+                        } else {
+                            "🤝 تعادل!"
+                        },
+                        color = Color(0xFFFFC107),
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
 
                 Spacer(
                     modifier = Modifier.height(20.dp)
@@ -373,6 +394,9 @@ fun GameScreen(
                 color = Color(0xFFFFC107)
             )
         }
+        ConfettiEffect(
+            isVisible = winner != null
+        )
     }
 }
 
@@ -447,11 +471,13 @@ private fun ConfettiEffect(
         List(45) {
             ConfettiParticle(
                 x = Random.nextFloat(),
-                y = Random.nextFloat() * -1f,
+                y = Random.nextFloat() * -0.5f - 0.1f,
+                targetY = Random.nextFloat() * 0.75f + 0.15f,
                 size = Random.nextFloat() * 8f + 5f,
                 speed = Random.nextFloat() * 0.008f + 0.004f,
                 rotation = Random.nextFloat() * 360f,
-                rotationSpeed = Random.nextFloat() * 8f - 4f
+                rotationSpeed = Random.nextFloat() * 8f - 4f,
+                delay = Random.nextFloat() * 0.25f
             )
         }
     }
@@ -471,20 +497,43 @@ private fun ConfettiEffect(
     ) {
         particles.forEach { particle ->
 
+            val particleProgress =
+                ((progress.value - particle.delay) /
+                        (1f - particle.delay))
+                    .coerceIn(0f, 1f)
+
+            val alpha =
+                if (particleProgress < 0.7f) {
+                    1f
+                } else {
+                    1f - ((particleProgress - 0.7f) / 0.3f)
+                }
+
             val y =
                 particle.y +
-                        (progress.value * (1.5f + particle.speed * 100))
+                        (particle.targetY - particle.y) * particleProgress
+
+            val sway =
+                kotlin.math.sin(
+                    particleProgress * 12f +
+                            particle.x * 20f
+                ) * 0.04f
 
             val x =
-                particle.x +
-                        kotlin.math.sin(
-                            progress.value * 8f + particle.x * 10f
-                        ) * 0.03f
+                particle.x + sway
+
+            val rotation =
+                particle.rotation +
+                        particle.rotationSpeed *
+                        particleProgress *
+                        360f
 
             drawConfettiParticle(
                 particle = particle,
                 x = x * size.width,
-                y = y * size.height
+                y = y * size.height,
+                rotation = rotation,
+                alpha = alpha
             )
         }
     }
@@ -492,16 +541,20 @@ private fun ConfettiEffect(
 private data class ConfettiParticle(
     val x: Float,
     val y: Float,
+    val targetY: Float,
     val size: Float,
     val speed: Float,
     val rotation: Float,
-    val rotationSpeed: Float
+    val rotationSpeed: Float,
+    val delay: Float
 )
 
 private fun DrawScope.drawConfettiParticle(
     particle: ConfettiParticle,
     x: Float,
-    y: Float
+    y: Float,
+    rotation: Float,
+    alpha: Float
 ) {
     val colors = listOf(
         Color(0xFFFF4081),
@@ -518,12 +571,12 @@ private fun DrawScope.drawConfettiParticle(
     ]
 
     rotate(
-        degrees = particle.rotation +
-                particle.rotationSpeed * 20f,
+        degrees = rotation,
         pivot = Offset(x, y)
     ) {
         drawRect(
             color = color,
+            alpha = alpha,
             topLeft = Offset(
                 x - particle.size / 2,
                 y - particle.size / 2
