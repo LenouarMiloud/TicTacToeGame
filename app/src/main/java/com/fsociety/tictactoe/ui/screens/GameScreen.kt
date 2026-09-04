@@ -32,6 +32,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -42,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fsociety.tictactoe.ui.theme.GameColors
 import com.fsociety.tictactoe.viewmodel.GameViewModel
 import kotlin.random.Random
 
@@ -101,7 +104,7 @@ fun GameScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF101018))
+            .background(GameColors.Background)
     ) {
         Column(
             modifier = Modifier
@@ -115,7 +118,12 @@ fun GameScreen(
                 text = "TIC TAC TOE",
                 fontSize = 36.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White
+                color = GameColors.X,
+                modifier = Modifier.shadow(
+                    elevation = 12.dp,
+                    shape = RoundedCornerShape(8.dp),
+                    clip = false
+                )
             )
 
             Spacer(
@@ -142,7 +150,7 @@ fun GameScreen(
 
                     Text(
                         text = humanScore.toString(),
-                        color = Color(0xFF00E5FF),
+                        color = GameColors.X,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -155,13 +163,13 @@ fun GameScreen(
 
                     Text(
                         text = "🤝",
-                        color = Color.White,
+                        color = GameColors.White,
                         fontSize = 18.sp
                     )
 
                     Text(
                         text = drawScore.toString(),
-                        color = Color(0xFFFFC107),
+                        color = GameColors.Gold,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -181,7 +189,7 @@ fun GameScreen(
 
                     Text(
                         text = phoneScore.toString(),
-                        color = Color(0xFFFF4081),
+                        color = GameColors.O,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -204,7 +212,7 @@ fun GameScreen(
                         "👤 دورك ($currentPlayer)"
                 },
 
-                color = Color(0xFF00E5FF),
+                color = GameColors.X,
 
                 fontSize = 20.sp,
 
@@ -280,7 +288,7 @@ fun GameScreen(
 
                         // Glow
                         drawLine(
-                            color = Color(0x55FFD700),
+                            color = GameColors.GoldGlow,
                             start = Offset(startX, startY),
                             end = Offset(animatedEndX, animatedEndY),
                             strokeWidth = 14f,
@@ -289,7 +297,7 @@ fun GameScreen(
 
                         // الخط الأساسي
                         drawLine(
-                            color = Color(0xFFFFD700),
+                            color = GameColors.Gold,
                             start = Offset(startX, startY),
                             end = Offset(animatedEndX, animatedEndY),
                             strokeWidth = 6f,
@@ -325,12 +333,12 @@ fun GameScreen(
                             scaleY = resultScale
                         }
                         .background(
-                            color = Color(0xFF1C1C2B),
+                            color = GameColors.Surface,
                             shape = RoundedCornerShape(20.dp)
                         )
                         .border(
                             width = 2.dp,
-                            color = Color(0xFFFFC107),
+                            color = GameColors.Gold,
                             shape = RoundedCornerShape(20.dp)
                         )
                         .padding(
@@ -345,7 +353,7 @@ fun GameScreen(
                         } else {
                             "🤝 تعادل!"
                         },
-                        color = Color(0xFFFFC107),
+                        color = GameColors.Gold,
                         fontSize = 26.sp,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -358,7 +366,12 @@ fun GameScreen(
                 Button(
                     onClick = {
                         gameViewModel.resetGame()
-                    }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(
                         text = "🔄 إعادة اللعب",
@@ -373,7 +386,12 @@ fun GameScreen(
                     onClick = {
                         gameViewModel.resetScore()
                         onBackToMenu()
-                    }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(
                         text = "🏠 القائمة الرئيسية",
@@ -391,7 +409,7 @@ fun GameScreen(
                 text = "X  •  O",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFFFFC107)
+                color = GameColors.ConfettiYellow
             )
         }
         ConfettiEffect(
@@ -431,14 +449,14 @@ private fun GameCell(
             }
             .border(
                 width = 2.dp,
-                color = Color(0xFF673AB7),
+                color = GameColors.Primary,
                 shape = RoundedCornerShape(12.dp)
             )
             .background(
                 color = if (isWinningCell) {
-                    Color(0xFF00C853)
+                    GameColors.WinGreen
                 } else {
-                    Color(0xFF252532)
+                    GameColors.CellBackground
                 },
                 shape = RoundedCornerShape(12.dp)
             )
@@ -453,9 +471,9 @@ private fun GameCell(
             fontSize = 48.sp,
             fontWeight = FontWeight.ExtraBold,
             color = if (value == "X") {
-                Color(0xFF00E5FF)
+                GameColors.X
             } else {
-                Color(0xFFFF4081)
+                GameColors.O
             }
         )
     }
@@ -557,12 +575,12 @@ private fun DrawScope.drawConfettiParticle(
     alpha: Float
 ) {
     val colors = listOf(
-        Color(0xFFFF4081),
-        Color(0xFF00E5FF),
-        Color(0xFFFFC107),
-        Color(0xFF00E676),
-        Color(0xFF7C4DFF),
-        Color(0xFFFF5722)
+        GameColors.ConfettiPink,
+        GameColors.ConfettiCyan,
+        GameColors.ConfettiYellow,
+        GameColors.ConfettiGreen,
+        GameColors.ConfettiPurple,
+        GameColors.ConfettiOrange
     )
 
     val color = colors[
