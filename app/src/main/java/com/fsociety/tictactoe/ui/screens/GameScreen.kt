@@ -1,5 +1,6 @@
 package com.fsociety.tictactoe.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -8,10 +9,14 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -137,62 +143,134 @@ fun GameScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .background(
+                            color = GameColors.Surface,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = GameColors.X,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .padding(
+                            horizontal = 20.dp,
+                            vertical = 12.dp
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = if (gameType == GameType.PLAYER_VS_PLAYER) {
+                                "👤 اللاعب 1"
+                            } else {
+                                "👤 أنت"
+                            },
+                            color = GameColors.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
 
-                    Text(
-                        text = "👤 أنت",
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Text(
-                        text = humanScore.toString(),
-                        color = GameColors.X,
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
+                        Text(
+                            text = humanScore.toString(),
+                            color = GameColors.X,
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
                 }
 
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier
+                        .width(100.dp)
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .background(
+                            color = GameColors.Surface,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = GameColors.Gold,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 12.dp
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "🤝",
+                            color = GameColors.White,
+                            fontSize = 16.sp
+                        )
 
-                    Text(
-                        text = "🤝",
-                        color = GameColors.White,
-                        fontSize = 18.sp
-                    )
-
-                    Text(
-                        text = drawScore.toString(),
-                        color = GameColors.Gold,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                        Text(
+                            text = drawScore.toString(),
+                            color = GameColors.Gold,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
 
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .background(
+                            color = GameColors.Surface,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = GameColors.O,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .padding(
+                            horizontal = 20.dp,
+                            vertical = 12.dp
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = if (gameType == GameType.PLAYER_VS_PLAYER) {
+                                "👤 اللاعب 2"
+                            } else {
+                                "🤖 الهاتف"
+                            },
+                            color = GameColors.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
 
-                    Text(
-                        text = "🤖 الهاتف",
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Text(
-                        text = phoneScore.toString(),
-                        color = GameColors.O,
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
+                        Text(
+                            text = phoneScore.toString(),
+                            color = GameColors.O,
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
                 }
             }
 
@@ -225,7 +303,26 @@ fun GameScreen(
 
             Box(
                 contentAlignment = Alignment.Center
-            ){
+            ) {
+                Box(
+                    modifier = Modifier
+                        .shadow(
+                            elevation = 12.dp,
+                            shape = RoundedCornerShape(24.dp),
+                            clip = false
+                        )
+                        .border(
+                            width = 1.5.dp,
+                            color = GameColors.Primary,
+                            shape = RoundedCornerShape(24.dp)
+                        )
+                        .background(
+                            color = GameColors.Surface,
+                            shape = RoundedCornerShape(24.dp)
+                        )
+                        .padding(10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -251,6 +348,7 @@ fun GameScreen(
                         }
                     }
                 }
+            }
 
                 if (winningLine.isNotEmpty()) {
                     Canvas(
@@ -370,7 +468,12 @@ fun GameScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
-                        .height(52.dp),
+                        .height(52.dp)
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = RoundedCornerShape(14.dp),
+                            clip = false
+                        ),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(
@@ -390,7 +493,12 @@ fun GameScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
-                        .height(52.dp),
+                        .height(52.dp)
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = RoundedCornerShape(14.dp),
+                            clip = false
+                        ),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(
@@ -430,6 +538,15 @@ private fun GameCell(
         label = "winningPulse"
     )
 
+    val interactionSource = remember {
+        MutableInteractionSource()
+    }
+
+    val scale = remember { Animatable(1f) }
+
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = 1.05f,
@@ -442,15 +559,31 @@ private fun GameCell(
 
     Box(
         modifier = Modifier
-            .size(95.dp)
+            .size(94.dp)
             .graphicsLayer {
-                scaleX = if (isWinningCell) pulseScale else 1f
-                scaleY = if (isWinningCell) pulseScale else 1f
+                val pressScale = if (isPressed) 0.94f else 1f
+
+                scaleX = if (isWinningCell) {
+                    pulseScale * pressScale
+                } else {
+                    pressScale
+                }
+
+                scaleY = if (isWinningCell) {
+                    pulseScale * pressScale
+                } else {
+                    pressScale
+                }
             }
+            .shadow(
+                elevation = 6.dp,
+                shape = RoundedCornerShape(16.dp),
+                clip = false
+            )
             .border(
-                width = 2.dp,
+                width = 1.5.dp,
                 color = GameColors.Primary,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(16.dp)
             )
             .background(
                 color = if (isWinningCell) {
@@ -460,22 +593,39 @@ private fun GameCell(
                 },
                 shape = RoundedCornerShape(12.dp)
             )
-            .clickable {
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {
                 onClick()
             },
         contentAlignment = Alignment.Center
     ) {
 
-        Text(
-            text = value,
-            fontSize = 48.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = if (value == "X") {
-                GameColors.X
-            } else {
-                GameColors.O
-            }
-        )
+        AnimatedVisibility(
+            visible = value.isNotEmpty(),
+            enter = fadeIn(
+                animationSpec = tween(500)
+            ) + scaleIn(
+                initialScale = 0.5f,
+                animationSpec = tween(500)
+            )
+        ) {
+            Text(
+                text = value,
+                fontSize = 48.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = if (value == "X") {
+                    GameColors.X
+                } else {
+                    GameColors.O
+                },
+                modifier = Modifier.shadow(
+                    elevation = 10.dp,
+                    shape = RoundedCornerShape(50)
+                )
+            )
+        }
     }
 }
 

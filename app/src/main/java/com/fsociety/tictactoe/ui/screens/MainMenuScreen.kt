@@ -1,5 +1,6 @@
 package com.fsociety.tictactoe.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,17 +19,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fsociety.tictactoe.ui.theme.GameColors
 
 @Composable
 fun MainMenuScreen(
     onPlayerVsPlayerClick : () -> Unit,
     onPlayerVsPhoneClick : () -> Unit
 ){
-    val backgroundColor = Color(0xFF101018)
+    val backgroundColor = GameColors.Background
 
     Column(
         modifier = Modifier.fillMaxSize()
-            .padding(24.dp),
+            .padding(24.dp)
+            .background(backgroundColor),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -36,14 +39,14 @@ fun MainMenuScreen(
             text = "TIC",
             fontSize = 52.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = Color.Black
+            color = GameColors.Gold
         )
 
         Text(
             text = "TAC TOE",
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF00E5FF)
+            color = GameColors.X
         )
 
         Spacer(Modifier.height(16.dp))
@@ -63,7 +66,7 @@ fun MainMenuScreen(
                 .height(65.dp),
             shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF673AB7))
+                containerColor = GameColors.Primary)
         ) {
             Text(
                 text = "\uD83D\uDC64  لاعب ضد لاعب  \uD83D\uDC64",
@@ -94,7 +97,7 @@ fun MainMenuScreen(
 
         Text(
             text = "X . O",
-            fontSize = 24.sp,
+            fontSize = 44.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFFFFC107)
         )
