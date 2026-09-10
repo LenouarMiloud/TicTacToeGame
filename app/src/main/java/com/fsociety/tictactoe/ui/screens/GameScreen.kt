@@ -32,6 +32,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,10 +47,12 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fsociety.tictactoe.SoundManager
 import com.fsociety.tictactoe.ui.theme.GameColors
 import com.fsociety.tictactoe.viewmodel.GameViewModel
 import kotlin.random.Random
@@ -62,6 +65,17 @@ fun GameScreen(
     onBackToMenu: () -> Unit,
     gameViewModel: GameViewModel = viewModel()
 ) {
+
+    val context = LocalContext.current
+    val soundManager = remember {
+        SoundManager(context)
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            soundManager.release()
+        }
+    }
 
     val board by gameViewModel.board.collectAsState()
 
@@ -85,6 +99,7 @@ fun GameScreen(
 
     LaunchedEffect(winningLine) {
         if (winningLine.isNotEmpty()) {
+            soundManager.playWin()
             lineProgress.snapTo(0f)
             lineProgress.animateTo(
                 targetValue = 1f,
@@ -94,6 +109,12 @@ fun GameScreen(
             )
         } else {
             lineProgress.snapTo(0f)
+        }
+    }
+
+    LaunchedEffect(isDraw) {
+        if (isDraw) {
+            soundManager.playDraw()
         }
     }
 
@@ -341,6 +362,7 @@ fun GameScreen(
                                     value = board[index],
                                     isWinningCell = index in winningLine,
                                     onClick = {
+                                        soundManager.playClick()
                                         gameViewModel.makeMove(index)
                                     }
                                 )
