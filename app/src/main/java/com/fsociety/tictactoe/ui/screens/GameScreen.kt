@@ -95,6 +95,8 @@ fun GameScreen(
 
     val drawScore by gameViewModel.drawScore.collectAsState()
 
+    val turnTime by gameViewModel.turnTime.collectAsState()
+
     val lineProgress = remember { Animatable(0f) }
 
     LaunchedEffect(winningLine) {
@@ -316,6 +318,29 @@ fun GameScreen(
                 fontSize = 20.sp,
 
                 fontWeight = FontWeight.Bold
+            )
+
+            val timerTransition = rememberInfiniteTransition(label = "timerPulse")
+
+            val timerScale by timerTransition.animateFloat(
+                initialValue = 1f,
+                targetValue = if (turnTime <= 3) 1.15f else 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(400),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "timerScale"
+            )
+
+            Text(
+                text = "⏱️ $turnTime",
+                color = if (turnTime <= 3) GameColors.Gold else GameColors.White,
+                fontSize = if (turnTime <= 3) 22.sp else 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.graphicsLayer {
+                    scaleX = timerScale
+                    scaleY = timerScale
+                }
             )
 
             Spacer(

@@ -9,6 +9,7 @@ import com.fsociety.tictactoe.domain.ai.NormalAi
 import com.fsociety.tictactoe.ui.screens.Difficulty
 import com.fsociety.tictactoe.ui.screens.FirstPlayer
 import com.fsociety.tictactoe.ui.screens.GameType
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -56,6 +57,11 @@ class GameViewModel : ViewModel() {
     val isPhoneThinking: StateFlow<Boolean> =
         _isPhoneThinking.asStateFlow()
 
+    private val _turnTime = MutableStateFlow(10)
+    val turnTime: StateFlow<Int> = _turnTime
+
+    private var turnTimerJob: Job? = null
+
 
     private var gameType =
         GameType.PLAYER_VS_PHONE
@@ -88,6 +94,43 @@ class GameViewModel : ViewModel() {
     val drawScore: StateFlow<Int> =
         _drawScore.asStateFlow()
 
+
+    private fun startTurnTimer() {
+        turnTimerJob?.cancel()
+
+        turnTimerJob = viewModelScope.launch {
+            _turnTime.value = 10
+
+            while (_turnTime.value > 0) {
+                delay(1000)
+                _turnTime.value--
+            }
+
+            // انتهاء وقت الدور
+            if (!isGameOver()) {
+
+                if (
+                    gameType == GameType.PLAYER_VS_PHONE &&
+                    _currentPlayer.value == humanMark
+                ) {
+                    // انتهى وقت اللاعب → دور الهاتف
+                    _currentPlayer.value = phoneMark
+                    makePhoneMove()
+
+                } else {
+                    // Player vs Player
+                    _currentPlayer.value =
+                        if (_currentPlayer.value == "X") {
+                            "O"
+                        } else {
+                            "X"
+                        }
+
+                    startTurnTimer()
+                }
+            }
+        }
+    }
 
     fun setupGame(
         gameType: GameType,
@@ -130,6 +173,7 @@ class GameViewModel : ViewModel() {
 
             makePhoneMove()
         }
+        startTurnTimer()
     }
 
 
@@ -174,7 +218,7 @@ class GameViewModel : ViewModel() {
                 } else {
                     "X"
                 }
-
+            startTurnTimer()
             return
         }
 
@@ -202,6 +246,7 @@ class GameViewModel : ViewModel() {
         }
 
         _currentPlayer.value = phoneMark
+        //startTurnTimer()
 
         makePhoneMove()
     }
@@ -276,8 +321,8 @@ class GameViewModel : ViewModel() {
 
             if (!isGameOver()) {
 
-                _currentPlayer.value =
-                    humanMark
+                _currentPlayer.value = humanMark
+                startTurnTimer()
             }
         }
     }
