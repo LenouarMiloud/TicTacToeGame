@@ -30,7 +30,6 @@ fun MainMenuScreen(
 
     Column(
         modifier = Modifier.fillMaxSize()
-            .padding(24.dp)
             .background(backgroundColor),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
